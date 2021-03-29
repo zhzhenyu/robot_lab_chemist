@@ -3,21 +3,27 @@ import random
 import pygame
 import math
 import sys
+from Station import Station
+from collections import defaultdict
 
 task_nodes = []
 step = 10
 def clear():
     screen.fill((255, 255, 255))
-    pygame.draw.rect(screen, (0,0,0), pygame.Rect(station1[0], station1[1], station_width,station_height))
-    pygame.draw.rect(screen, (0,0,0), pygame.Rect(station2[0], station2[1], station_width,station_height))
-    pygame.draw.rect(screen, (0,0,0), pygame.Rect(station3[0], station3[1], station_height,station_width))
+    station1.draw()
+    station2.draw()
+    station3.draw()
     
 
-class agent(object):
+class Agent(object):
     def __init__(self):
         self.x = 250
         self.y = 250
         self.rect = pygame.rect.Rect((self.x, self.y, 16, 16))
+        self.learned_tasks = defaultdict(dict)
+        self.prev_level = None
+        self.current_level = self.learned_tasks
+        self.state = None
 
     def handle_keys(self):
         key = pygame.key.get_pressed()
@@ -37,6 +43,12 @@ class agent(object):
         if key[pygame.K_SPACE]:
             task_nodes.append(task_node(self.x,self.y,'dummy_task'))
             print(self.x,self.y)
+    
+    def learn_task(self,task):
+        if task not in self.current_level:
+            self.current_level[task] = {}
+        self.prev_level = self.current_level
+        self.current_level = self.current_level[task]
         
 
     def draw(self, surface):
@@ -70,7 +82,7 @@ class agent(object):
 
     def display(self):
         if self.rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            print('get agent states')
+            print('get agent states: ', self.prev_level)
 
 class task_node:
     def __init__(self,x,y,task):
@@ -88,24 +100,33 @@ clock = pygame.time.Clock()
 done = False
 station_width = 40
 station_height = 200
-station1 = [0,80]
-station2 = [screen_width-station_width,80]
-station3 = [(screen_width-station_height)/2,0]
-agent = agent()
+station1 = Station(0,80,screen,station_width,station_height,['pick up items','prepare for reaction'])
+station2 = Station(screen_width-station_width,80,screen,station_width,station_height,['C','D'])
+station3 = Station((screen_width-station_height)/2,0,screen,station_height,station_width,['E','F'])
+agent = Agent()
+i = 0
 
 while not done:
     pygame.key.set_repeat(1000, 1000)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
-    agent.display()
     if pygame.key.get_pressed()[pygame.K_d]:
         clear()
+        agent.current_level = agent.learned_tasks
         agent.x = 250
         agent.y = 250
         agent.draw(screen)
         for task_node in task_nodes:
             agent.goto(task_node.x,task_node.y)
+    if pygame.key.get_pressed()[pygame.K_l]:
+        agent.learn_task('dummy_task'+str(i))
+        i+=1
+    station1.get_actions()
+    station2.get_actions()
+    station3.get_actions()
+
+    agent.display()
     clear()
     agent.draw(screen)
     agent.handle_keys()

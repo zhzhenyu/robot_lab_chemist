@@ -10,30 +10,23 @@ task_nodes = []
 step = 10
 def clear():
     screen.fill((255, 255, 255))
-<<<<<<< HEAD
     station1.draw()
     station2.draw()
     station3.draw()
     
-=======
-    pygame.draw.rect(screen, (0, 0, 0), storage_bench.rect)
-    pygame.draw.rect(screen, (0, 0, 0), reaction_bench.rect)
-    pygame.draw.rect(screen, (0, 0, 0), separation_bench.rect)
->>>>>>> 552b0170a094b456561ccefa72183d539bdfb848
+
 
 class Agent(object):
     def __init__(self):
         self.x = 250
         self.y = 250
         self.rect = pygame.rect.Rect((self.x, self.y, 16, 16))
-<<<<<<< HEAD
         self.learned_tasks = defaultdict(dict)
         self.prev_level = None
         self.current_level = self.learned_tasks
         self.state = None
-=======
         self.chemicals = []
->>>>>>> 552b0170a094b456561ccefa72183d539bdfb848
+
 
     def handle_keys(self):
         key = pygame.key.get_pressed()
@@ -51,7 +44,6 @@ class Agent(object):
             self.rect.move_ip(0, step)
             self.y += step
         if key[pygame.K_SPACE]:
-<<<<<<< HEAD
             task_nodes.append(task_node(self.x,self.y,'dummy_task'))
             print(self.x,self.y)
     
@@ -61,10 +53,6 @@ class Agent(object):
         self.prev_level = self.current_level
         self.current_level = self.current_level[task]
         
-=======
-            task_nodes.append(task_node(self.x, self.y, 'dummy_task'))
-            print(self.x, self.y)
->>>>>>> 552b0170a094b456561ccefa72183d539bdfb848
 
     def draw(self, surface):
         pygame.draw.rect(screen, (0, 0, 128), pygame.rect.Rect((self.x, self.y, 16, 16)))
@@ -105,12 +93,6 @@ class task_node:
         self.y = y
         self.task = task
 
-class bench:
-    def __init__(self, left, top, width, height, chemicals=None):
-        if chemicals is None:
-            chemicals = []
-        self.rect = pygame.rect.Rect(left, top, width, height)
-        self.chemicals = chemicals
 
 
 pygame.init()
@@ -121,21 +103,13 @@ clock = pygame.time.Clock()
 done = False
 station_width = 40
 station_height = 200
-<<<<<<< HEAD
+
 station1 = Station(0,80,screen,station_width,station_height,['pick up items','prepare for reaction'])
 station2 = Station(screen_width-station_width,80,screen,station_width,station_height,['C','D'])
 station3 = Station((screen_width-station_height)/2,0,screen,station_height,station_width,['E','F'])
 agent = Agent()
-i = 0
-=======
-station1 = [0, 80]
-station2 = [screen_width - station_width, 80]
-station3 = [(screen_width - station_height) / 2, 0]
-storage_bench = bench(station1[0], station1[1], station_width, station_height, ["A", "B"])
-reaction_bench = bench(station2[0], station2[1], station_width, station_height, [])
-separation_bench = bench(station3[0], station3[1], station_height, station_width, [])
-agent = agent()
->>>>>>> 552b0170a094b456561ccefa72183d539bdfb848
+
+
 
 while not done:
     pygame.key.set_repeat(1000, 1000)
@@ -149,7 +123,6 @@ while not done:
         agent.y = 250
         agent.draw(screen)
         for task_node in task_nodes:
-<<<<<<< HEAD
             agent.goto(task_node.x,task_node.y)
     if pygame.key.get_pressed()[pygame.K_l]:
         agent.learn_task('dummy_task'+str(i))
@@ -159,8 +132,7 @@ while not done:
     station3.get_actions()
 
     agent.display()
-=======
-            agent.goto(task_node.x, task_node.y)
+
     # Pick up
     if pygame.key.get_pressed()[pygame.K_p]:
         # calculate distance to bench
@@ -192,7 +164,7 @@ while not done:
             else:
                 print("chemical not in current bench")
 
->>>>>>> 552b0170a094b456561ccefa72183d539bdfb848
+
     clear()
     agent.draw(screen)
     agent.handle_keys()

@@ -133,36 +133,6 @@ while not done:
 
     agent.display()
 
-    # Pick up
-    if pygame.key.get_pressed()[pygame.K_p]:
-        # calculate distance to bench
-        # if robot is next to a bench
-        #   ask for chemicals to pickup
-        #   if chemical is available
-        #       pick up the chemical
-        # else
-        #   do nothings
-        current_bench = None
-        if storage_bench.rect.contains(agent.rect):
-            print("in the storage bench")
-            current_bench = storage_bench
-        elif reaction_bench.rect.contains(agent.rect):
-            print("in the reaction bench")
-            current_bench = reaction_bench
-        elif separation_bench.rect.contains(agent.rect):
-            print("in the separation bench")
-            current_bench = separation_bench
-        else:
-            print("not next to bench")
-
-        if current_bench:
-            chemical = input("chemical to pick up\n")
-            if chemical in current_bench.chemicals:
-                current_bench.chemicals.remove(chemical)
-                agent.chemicals.append(chemical)
-                print("agent has chemical " + "".join(agent.chemicals))
-            else:
-                print("chemical not in current bench")
 
 
     clear()

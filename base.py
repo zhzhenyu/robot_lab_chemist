@@ -67,6 +67,9 @@ class agent(object):
                 self.y += 1
                 pygame.display.update()
 
+    def display(self):
+        if self.rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+            print('get agent states')
 
 class task_node:
     def __init__(self, x, y, task):
@@ -103,6 +106,7 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
+    agent.display()
     if pygame.key.get_pressed()[pygame.K_d]:
         clear()
         agent.x = 250

@@ -6,14 +6,19 @@ import sys
 from Station import Station
 from collections import defaultdict
 import numpy as np
+import time
+from functools import partial
 
 task_nodes = []
 step = 10
+
+
 def clear():
     screen.fill((255, 255, 255))
     station1.draw()
     station2.draw()
     station3.draw()
+
 
 def pairwise_dist(pos1, pos2):
     dist = np.sqrt(np.sum((pos1.reshape(2, 1) - pos2) ** 2, axis=0))
@@ -32,7 +37,6 @@ class Agent(object):
         self.state = None
         self.chemicals = []
 
-
     def handle_keys(self):
         key = pygame.key.get_pressed()
         dist = 1
@@ -49,7 +53,7 @@ class Agent(object):
             self.rect.move_ip(0, step)
             self.y += step
         if key[pygame.K_SPACE]:
-            task_nodes.append(task_node(self.x,self.y,'dummy_task'))
+            task_nodes.append(task_node(self.x,self.y,'dummy_task', None,))
             print(self.x,self.y)
         self.pos = np.array([self.x, self.y])
     
@@ -58,12 +62,11 @@ class Agent(object):
             self.current_level[task] = {}
         self.prev_level = self.current_level
         self.current_level = self.current_level[task]
-        
 
     def draw(self, surface):
         pygame.draw.rect(screen, (0, 0, 128), pygame.rect.Rect((self.x, self.y, agentSize, agentSize)))
 
-    def goto(self, x, y):
+    def goto(self, x, y, index):
         while abs(self.x - x) > 1:
             clear()
             if self.x > x:
@@ -100,10 +103,19 @@ class reagent(object):
         self.x = self.pos[0]
         self.y = self.pos[1]
 
+    def reset(self):
+        self.pos = np.array([[20, 100], [20, 180], [20, 260]]).transpose()
+        self.x = self.pos[0]
+        self.y = self.pos[1]
+
     def possess(self, agx, agy, ind):
         self.x[ind] = agx+agentSize/2
         self.y[ind] = agy+agentSize/2
         self.pos = np.array([self.x, self.y])
+
+    def drop(self, x, y, index):
+        global possess
+        posse = False
 
     def draw(self, surface):
         pygame.draw.circle(screen, color=reagent0_color, center=[self.x[0], self.y[0]], radius=agentSize / 2)
@@ -112,10 +124,11 @@ class reagent(object):
 
 
 class task_node:
-    def __init__(self, x, y, task):
+    def __init__(self, x, y, task, ind):
         self.x = x
         self.y = y
         self.task = task
+        self.index = ind
 
 
 pygame.init()
@@ -135,8 +148,9 @@ station2 = Station(screen_width-station_width,80,screen,station_width,station_he
 station3 = Station((screen_width-station_height)/2,0,screen,station_height,station_width,['E','F'])
 agent = Agent()
 reag = reagent()
-possess = False
+posse = False
 index = 10
+sequence = []
 
 while not done:
     pygame.key.set_repeat(1000, 1000)
@@ -144,25 +158,49 @@ while not done:
         if event.type == pygame.QUIT:
             done = True
     if pygame.key.get_pressed()[pygame.K_p]:
-        if not possess:
+        if not posse:
             dist = pairwise_dist(agent.pos+np.array([agentSize/2, agentSize/2]), reag.pos)
             if np.any(dist < agentSize):
-                possess = True
+                posse = True
+                task_nodes.append(task_node(agent.x, agent.y, 'dummy_task', None))
+                sequence.append(partial(agent.goto))
                 index = np.argmin(dist)
-        print(possess)
+                task_nodes.append(task_node(agent.x, agent.y, 'dummy_task', index))
+                sequence.append(partial(reag.possess))
     if pygame.key.get_pressed()[pygame.K_o]:
-        possess = False
-        print(possess)
-    if possess:
+        task_nodes.append(task_node(agent.x, agent.y, 'dummy_task', index))
+        sequence.append(partial(agent.goto))
+        task_nodes.append(task_node(agent.x, agent.y, 'dummy_task', index))
+        sequence.append(partial(reag.possess))
+        posse = False
+        task_nodes.append(task_node(agent.x, agent.y, 'dummy_task', index))
+        sequence.append(partial(reag.drop))
+    if posse:
         reag.possess(agent.x, agent.y, index)
     if pygame.key.get_pressed()[pygame.K_d]:
         clear()
+        reag.reset()
         agent.current_level = agent.learned_tasks
+        agent.draw(screen)
+        reag.draw(screen)
+        agent.handle_keys()
+        pygame.display.update()
         agent.x = 250
         agent.y = 250
         agent.draw(screen)
-        for task_node in task_nodes:
-            agent.goto(task_node.x,task_node.y)
+        for seq in range(len(sequence)):
+            print(task_nodes[seq].x, task_nodes[seq].y, task_nodes[seq].index)
+            sequence[seq](task_nodes[seq].x, task_nodes[seq].y, task_nodes[seq].index)
+            agent.draw(screen)
+            reag.draw(screen)
+            agent.handle_keys()
+            pygame.display.update()
+            time.sleep(1)
+
+
+
+        # for task_node in task_nodes:
+        #     agent.goto(task_node.x,task_node.y)
     # if pygame.key.get_pressed()[pygame.K_l]:
     #     agent.learn_task('dummy_task'+str(i))
     #     i+=1
@@ -171,7 +209,6 @@ while not done:
     station3.get_actions()
 
     agent.display()
-
 
 
     clear()

@@ -8,15 +8,14 @@ class Station(object):
 		self.y = y
 		self.width = width
 		self.height = height
-		self.font = pygame.font.SysFont('Corbel',35)
 		self.rect = pygame.Rect(x, y, width, height)
-		pygame.draw.rect(screen, (0,0,0), self.rect)
+		pygame.draw.rect(screen, (120,120,120), self.rect)
 
 	def add_action(self,action):
 		self.actions.add(action)
 
 	def draw(self):
-		pygame.draw.rect(self.screen, (0,0,0), self.rect)
+		pygame.draw.rect(self.screen, (120,120,120), self.rect)
 
 	def get_actions(self):
 		if self.rect.collidepoint(pygame.mouse.get_pos()) and pygame.key.get_pressed()[pygame.K_g]:

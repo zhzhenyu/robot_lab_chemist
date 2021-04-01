@@ -13,6 +13,7 @@ class Agent(object):
         self.screen = screen
         self.step = step
 
+
     def get_pos(self):
         return [self.x,self.y]
 
@@ -76,7 +77,6 @@ class Agent(object):
 
     def pick_up(self,chemical):
         if chemical not in self.chemicals:
-            print('pick up chemical')
             self.chemicals.append(chemical)
             chemical.being_hold = True
 

@@ -15,9 +15,8 @@ def draw_hold_chemicals():
 
 def clear():
     screen.fill((255, 255, 255))
-    station1.draw()
-    station2.draw()
-    station3.draw()
+    for station in all_stations:
+        station.draw()
     for chemical in all_chemicals:
         if chemical.being_hold: 
             draw_hold_chemicals()
@@ -55,12 +54,12 @@ def react(agent,all_chemicals,learning):
             tasks.append(Task_node(new_chemical.get_pos(),'react'))
 
 def reset():
-    global chemical1,chemical2,all_chemicals,agent
-    pygame.init()
-    chemical1 = Chemical(20,150, screen,chemical_width,chemical_height,(0,100,100))
-    chemical2 = Chemical(20,200, screen,chemical_width,chemical_height,(100,100,0))
+    global chemical1,chemical2,chemical3,all_chemicals,agent
+    chemical1 = Chemical(20,120, screen,chemical_width,chemical_height,(0,100,100))
+    chemical2 = Chemical(20,180, screen,chemical_width,chemical_height,(100,100,0))
+    chemical3 = Chemical(20,240, screen,chemical_width,chemical_height,(100,0,100))
+    all_chemicals = [chemical1,chemical2,chemical3]
     agent = Agent(screen,step)
-    all_chemicals = [chemical1,chemical2]
     clear()
 
 pygame.init()
@@ -75,11 +74,11 @@ tasks = []
 station1 = Station(0,80,screen,station_width,station_height,['pick up items','prepare for reaction'])
 station2 = Station(screen_width-station_width,80,screen,station_width,station_height,['C','D'])
 station3 = Station((screen_width-station_height)/2,0,screen,station_height,station_width,['E','F'])
-
-chemical1 = Chemical(20,150, screen,chemical_width,chemical_height,(0,100,100))
-chemical2 = Chemical(20,200, screen,chemical_width,chemical_height,(100,100,0))
-all_chemicals = [chemical1,chemical2]
-
+all_stations = [station1,station2,station3]
+chemical1 = Chemical(20,120, screen,chemical_width,chemical_height,(0,100,100))
+chemical2 = Chemical(20,180, screen,chemical_width,chemical_height,(100,100,0))
+chemical3 = Chemical(20,240, screen,chemical_width,chemical_height,(100,0,100))
+all_chemicals = [chemical1,chemical2,chemical3]
 agent = Agent(screen,step)
 
 while not done:
@@ -107,10 +106,9 @@ while not done:
             elif action == 'react':
                 react(agent,all_chemicals,False)
 
-    
-    station1.get_actions()
-    station2.get_actions()
-    station3.get_actions()
+    for station in all_stations:
+        station.get_actions()
+
     agent.display()
     agent.draw(screen)
     agent.handle_keys()

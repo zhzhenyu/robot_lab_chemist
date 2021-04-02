@@ -50,7 +50,7 @@ def react(agent,all_chemicals,learning):
             all_chemicals.remove(chemical)
             components.append(chemical.color)
         color = (r,g,b)
-        mix_chemical = Chemical(agent.x,agent.y-10, screen,chemical_width,chemical_height,color,components)
+        mix_chemical = Chemical(agent.x,agent.y, screen,chemical_width,chemical_height,color,components)
         agent.chemicals = []
         all_chemicals.append(mix_chemical)
         if learning:
@@ -61,7 +61,6 @@ def separate(agent,all_chemicals,learning):
         for i,chemical in enumerate(agent.chemicals):
             if chemical.components:
                 r,g,b = 0,0,0
-                
                 for j,color in enumerate(chemical.components):
                     component_chemical = Chemical(agent.x+10,agent.y+j*20,screen,chemical_width,chemical_height,color,[])
                     r+=chemical.color[0]
@@ -93,12 +92,12 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
 done = False
 station_width,station_height = 40,200
-chemical_width,chemical_height = 10,10
+chemical_width,chemical_height = 12,12
 tasks = []
 
-station1 = Station(0,80,screen,station_width,station_height,['pick up items','prepare for reaction'])
-station2 = Station(screen_width-station_width,80,screen,station_width,station_height,['C','D'])
-station3 = Station((screen_width-station_height)/2,0,screen,station_height,station_width,['E','F'])
+station1 = Station(0,80,screen,station_width,station_height,['pick up chemicals','prepare for reaction'])
+station2 = Station(screen_width-station_width,80,screen,station_width,station_height,['raction bench'])
+station3 = Station((screen_width-station_height)/2,0,screen,station_height,station_width,['separating chemical mixtures'])
 all_stations = [station1,station2,station3]
 chemical1 = Chemical(20,120, screen,chemical_width,chemical_height,(0,100,100),[])
 chemical2 = Chemical(20,180, screen,chemical_width,chemical_height,(100,100,0),[])
@@ -124,6 +123,7 @@ while not done:
     if pygame.key.get_pressed()[pygame.K_s]:
         reset()
         for task_node in tasks:
+            # print(task_node.pos,task_node.action)
             agent.goto(task_node.pos,clear)
             action = task_node.action
             if action == 'pick_up':

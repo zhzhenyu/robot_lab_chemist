@@ -6,7 +6,6 @@ from Task_node import Task_node
 import numpy as np
 from functools import partial
 
-task_nodes = []
 step = 10
 
 def draw_hold_chemicals():
@@ -25,10 +24,10 @@ def clear():
 
 def pick_up_chemical(agent,all_chemicals,tasks,learning):
     for chemical in all_chemicals:
-            if agent.rect.collidepoint(chemical.get_pos()):
-                agent.pick_up(chemical)
-                if learning:
-                    tasks.append(Task_node(chemical.get_pos(),'pick_up'))
+        if agent.rect.collidepoint(chemical.get_pos()):
+            agent.pick_up(chemical)
+            if learning:
+                tasks.append(Task_node(chemical.get_pos(),'pick_up'))
 
 def drop_off_chemical(agent,tasks,learning):
     if agent.chemicals:
@@ -42,22 +41,39 @@ def drop_off_chemical(agent,tasks,learning):
 def react(agent,all_chemicals,learning):
     if agent.chemicals:
         r,g,b = 0,0,0
+        components = []
         for chemical in agent.chemicals:
             r+=chemical.color[0]
             g+=chemical.color[1]
             b+=chemical.color[2]
+            chemical.being_hold = False
+            all_chemicals.remove(chemical)
+            components.append(chemical.color)
         color = (r/3,g/3,b/3)
-        new_chemical = Chemical(agent.x,agent.y, screen,chemical_width,chemical_height,color)
+        new_chemical = Chemical(agent.x,agent.y-10, screen,chemical_width,chemical_height,color,components)
         agent.chemicals = []
         all_chemicals.append(new_chemical)
         if learning:
             tasks.append(Task_node(new_chemical.get_pos(),'react'))
 
+def separate(agent,all_chemicals,learning):
+    if agent.chemicals:
+        for i,chemical in enumerate(agent.chemicals):
+            if chemical.components:
+                for j,color in enumerate(chemical.components):
+                    component_chemical = Chemical(agent.x+j*30,agent.y-10, screen,chemical_width,chemical_height,color,[])
+                    all_chemicals.append(component_chemical)
+                all_chemicals.remove(chemical)
+                agent.chemicals.remove(chemical)
+                break
+        if learning:
+            tasks.append(Task_node(agent.get_pos(),'separate'))
+
 def reset():
     global chemical1,chemical2,chemical3,all_chemicals,agent
-    chemical1 = Chemical(20,120, screen,chemical_width,chemical_height,(0,100,100))
-    chemical2 = Chemical(20,180, screen,chemical_width,chemical_height,(100,100,0))
-    chemical3 = Chemical(20,240, screen,chemical_width,chemical_height,(100,0,100))
+    chemical1 = Chemical(20,120, screen,chemical_width,chemical_height,(0,100,100),[])
+    chemical2 = Chemical(20,180, screen,chemical_width,chemical_height,(100,100,0),[])
+    chemical3 = Chemical(20,240, screen,chemical_width,chemical_height,(100,0,100),[])
     all_chemicals = [chemical1,chemical2,chemical3]
     agent = Agent(screen,step)
     clear()
@@ -75,9 +91,9 @@ station1 = Station(0,80,screen,station_width,station_height,['pick up items','pr
 station2 = Station(screen_width-station_width,80,screen,station_width,station_height,['C','D'])
 station3 = Station((screen_width-station_height)/2,0,screen,station_height,station_width,['E','F'])
 all_stations = [station1,station2,station3]
-chemical1 = Chemical(20,120, screen,chemical_width,chemical_height,(0,100,100))
-chemical2 = Chemical(20,180, screen,chemical_width,chemical_height,(100,100,0))
-chemical3 = Chemical(20,240, screen,chemical_width,chemical_height,(100,0,100))
+chemical1 = Chemical(20,120, screen,chemical_width,chemical_height,(0,100,100),[])
+chemical2 = Chemical(20,180, screen,chemical_width,chemical_height,(100,100,0),[])
+chemical3 = Chemical(20,240, screen,chemical_width,chemical_height,(100,0,100),[])
 all_chemicals = [chemical1,chemical2,chemical3]
 agent = Agent(screen,step)
 
@@ -94,6 +110,8 @@ while not done:
         tasks.append(Task_node(agent.get_pos(),'go_to'))
     if pygame.key.get_pressed()[pygame.K_r]:
         react(agent,all_chemicals,True)
+    if pygame.key.get_pressed()[pygame.K_f]:
+        separate(agent,all_chemicals,True)
     if pygame.key.get_pressed()[pygame.K_s]:
         reset()
         for task_node in tasks:
@@ -105,6 +123,8 @@ while not done:
                 drop_off_chemical(agent,tasks,False)
             elif action == 'react':
                 react(agent,all_chemicals,False)
+            elif action == 'separate':
+                separate(agent,all_chemicals,False)
 
     for station in all_stations:
         station.get_actions()

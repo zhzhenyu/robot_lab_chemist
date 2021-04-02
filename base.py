@@ -49,22 +49,31 @@ def react(agent,all_chemicals,learning):
             chemical.being_hold = False
             all_chemicals.remove(chemical)
             components.append(chemical.color)
-        color = (r/3,g/3,b/3)
-        new_chemical = Chemical(agent.x,agent.y-10, screen,chemical_width,chemical_height,color,components)
+        color = (r,g,b)
+        mix_chemical = Chemical(agent.x,agent.y-10, screen,chemical_width,chemical_height,color,components)
         agent.chemicals = []
-        all_chemicals.append(new_chemical)
+        all_chemicals.append(mix_chemical)
         if learning:
-            tasks.append(Task_node(new_chemical.get_pos(),'react'))
+            tasks.append(Task_node(mix_chemical.get_pos(),'react'))
 
 def separate(agent,all_chemicals,learning):
     if agent.chemicals:
         for i,chemical in enumerate(agent.chemicals):
             if chemical.components:
+                r,g,b = 0,0,0
+                
                 for j,color in enumerate(chemical.components):
-                    component_chemical = Chemical(agent.x+j*30,agent.y-10, screen,chemical_width,chemical_height,color,[])
+                    component_chemical = Chemical(agent.x+10,agent.y+j*20,screen,chemical_width,chemical_height,color,[])
+                    r+=chemical.color[0]
+                    g+=chemical.color[1]
+                    b+=chemical.color[2]
                     all_chemicals.append(component_chemical)
+                n = len(chemical.components)
                 all_chemicals.remove(chemical)
                 agent.chemicals.remove(chemical)
+                avg_color = (r//n,g//n,b//n)
+                new_chemical = Chemical(agent.x+10,agent.y+n*20,screen,chemical_width,chemical_height, avg_color,[])
+                all_chemicals.append(new_chemical)
                 break
         if learning:
             tasks.append(Task_node(agent.get_pos(),'separate'))

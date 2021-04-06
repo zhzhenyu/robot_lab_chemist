@@ -34,7 +34,6 @@ class Agent(object):
             self.y += self.step
         if key[pygame.K_SPACE]:
             pass
-
     
     def learn_task(self,task):
         if task not in self.current_level:

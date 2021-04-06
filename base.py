@@ -77,6 +77,11 @@ def separate(agent,all_chemicals,learning):
         if learning:
             tasks.append(Task_node(agent.get_pos(),'separate'))
 
+def add_demonstration():
+    global tasks,demonstrations
+    demonstrations.append(tasks)
+    tasks = []
+
 def reset():
     global chemical1,chemical2,chemical3,all_chemicals,agent
     chemical1 = Chemical(20,120, screen,chemical_width,chemical_height,(0,100,100),[])
@@ -93,6 +98,7 @@ clock = pygame.time.Clock()
 done = False
 station_width,station_height = 40,200
 chemical_width,chemical_height = 12,12
+demonstrations = []
 tasks = []
 
 station1 = Station(0,80,screen,station_width,station_height,['pick up chemicals','prepare for reaction'])
@@ -120,20 +126,26 @@ while not done:
         react(agent,all_chemicals,True)
     if pygame.key.get_pressed()[pygame.K_f]:
         separate(agent,all_chemicals,True)
-    if pygame.key.get_pressed()[pygame.K_s]:
+    if pygame.key.get_pressed()[pygame.K_a]:
         reset()
-        for task_node in tasks:
-            # print(task_node.pos,task_node.action)
-            agent.goto(task_node.pos,clear)
-            action = task_node.action
-            if action == 'pick_up':
-                pick_up_chemical(agent,all_chemicals,tasks,False)
-            elif action == 'drop_down':
-                drop_off_chemical(agent,tasks,False)
-            elif action == 'react':
-                react(agent,all_chemicals,False)
-            elif action == 'separate':
-                separate(agent,all_chemicals,False)
+        add_demonstration()
+    if pygame.key.get_pressed()[pygame.K_s]:
+        if tasks:
+            demonstrations.append(tasks)
+        for tasks in demonstrations:
+            reset()
+            for task_node in tasks:
+                # print(task_node.pos,task_node.action)
+                agent.goto(task_node.pos,clear)
+                action = task_node.action
+                if action == 'pick_up':
+                    pick_up_chemical(agent,all_chemicals,tasks,False)
+                elif action == 'drop_down':
+                    drop_off_chemical(agent,tasks,False)
+                elif action == 'react':
+                    react(agent,all_chemicals,False)
+                elif action == 'separate':
+                    separate(agent,all_chemicals,False)
 
     for station in all_stations:
         station.get_actions()

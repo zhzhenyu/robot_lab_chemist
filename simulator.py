@@ -55,7 +55,7 @@ def react(agent,all_chemicals,learning):
             chemical.being_hold = False
             all_chemicals.remove(chemical)
             components.append(chemical.color)
-        r,g,b = min(255,r),min(255,g),min(255,b)
+        r,g,b = min(240,r),min(240,g),min(240,b)
         color = (r,g,b)
         mix_chemical = Chemical(agent.x,agent.y, screen,chemical_width,chemical_height,color,components)
         agent.chemicals = []

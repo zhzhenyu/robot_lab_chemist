@@ -124,6 +124,7 @@ stage_nodes = []
 parent_nodes = []
 parent_index = 0
 
+
 station1 = Station(0,80,screen,station_width,station_height,['pick up chemicals','prepare for reaction'])
 station2 = Station(screen_width-station_width,80,screen,station_width,station_height,['raction bench'])
 station3 = Station((screen_width-station_height)/2,0,screen,station_height,station_width,['separating chemical mixtures'])
@@ -131,6 +132,7 @@ all_stations = [station1,station2,station3]
 chemical1 = Chemical(20,120, screen,chemical_width,chemical_height,(0,100,100),[])
 chemical2 = Chemical(20,180, screen,chemical_width,chemical_height,(100,100,0),[])
 chemical3 = Chemical(20,240, screen,chemical_width,chemical_height,(100,0,100),[])
+key_to_chemical = {'1':chemical1,'2':chemical2,'3':chemical3}
 all_chemicals = [chemical1,chemical2,chemical3]
 agent = Agent(screen,step)
 
@@ -207,7 +209,15 @@ while not done:
                 elif action == 'separate':
                     separate(agent,all_chemicals,False)
             parent_index+=1
-
+    if pygame.key.get_pressed()[pygame.K_i]:
+        reset()
+        s = input("Enter chemicals: ")
+        s = s.split(',')
+        # print(s)
+        for i,c_name in enumerate(s):
+            chemical = key_to_chemical[c_name]
+            parent_nodes[0].children[i].pos = chemical.get_pos()
+            # print(chemical.get_pos())
     for station in all_stations:
         station.get_actions()
 

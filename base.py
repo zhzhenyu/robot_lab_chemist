@@ -3,6 +3,7 @@ from Station import Station
 from Agent import Agent
 from Chemical import Chemical
 from Task_node import Task_node
+from Parent_node import Parent_node
 import numpy as np
 from functools import partial
 
@@ -27,7 +28,9 @@ def pick_up_chemical(agent,all_chemicals,tasks,learning):
         if agent.rect.collidepoint(chemical.get_pos()):
             agent.pick_up(chemical)
             if learning:
-                tasks.append(Task_node(chemical.get_pos(),'pick_up'))
+                node = Task_node(chemical.get_pos(),'pick_up')
+                tasks.append(node)
+                stage_nodes.append(node)
 
 def drop_off_chemical(agent,tasks,learning):
     if agent.chemicals:
@@ -36,7 +39,9 @@ def drop_off_chemical(agent,tasks,learning):
         chemical.update_pos(agent.x,agent.y)
         chemical.being_hold = False
         if learning:
-            tasks.append(Task_node(chemical.get_pos(),'drop_down'))
+            node = Task_node(chemical.get_pos(),'drop_down')
+            tasks.append(node)
+            stage_nodes.append(node)
 
 def react(agent,all_chemicals,learning):
     if agent.chemicals:
@@ -54,7 +59,9 @@ def react(agent,all_chemicals,learning):
         agent.chemicals = []
         all_chemicals.append(mix_chemical)
         if learning:
-            tasks.append(Task_node(mix_chemical.get_pos(),'react'))
+            node = Task_node(mix_chemical.get_pos(),'react')
+            tasks.append(node)
+            stage_nodes.append(node)
 
 def separate(agent,all_chemicals,learning):
     if agent.chemicals:
@@ -75,7 +82,17 @@ def separate(agent,all_chemicals,learning):
                 all_chemicals.append(new_chemical)
                 break
         if learning:
-            tasks.append(Task_node(agent.get_pos(),'separate'))
+            node = Task_node(agent.get_pos(),'separate')
+            tasks.append(node)
+            stage_nodes.append(node)
+
+def merge_nodes():
+    global stage_nodes
+    parent_node = Parent_node()
+    for node in stage_nodes:
+        parent_node.children.append(node)
+    parent_nodes.append(parent_node)
+    stage_nodes = []
 
 def add_demonstration():
     global tasks,demonstrations
@@ -100,6 +117,8 @@ station_width,station_height = 40,200
 chemical_width,chemical_height = 12,12
 demonstrations = []
 tasks = []
+stage_nodes = []
+parent_nodes = []
 
 station1 = Station(0,80,screen,station_width,station_height,['pick up chemicals','prepare for reaction'])
 station2 = Station(screen_width-station_width,80,screen,station_width,station_height,['raction bench'])
@@ -124,18 +143,36 @@ while not done:
         tasks.append(Task_node(agent.get_pos(),'go_to'))
     if pygame.key.get_pressed()[pygame.K_r]:
         react(agent,all_chemicals,True)
-    if pygame.key.get_pressed()[pygame.K_f]:
+    if pygame.key.get_pressed()[pygame.K_s]:
         separate(agent,all_chemicals,True)
     if pygame.key.get_pressed()[pygame.K_a]:
         reset()
         add_demonstration()
-    if pygame.key.get_pressed()[pygame.K_s]:
+    if pygame.key.get_pressed()[pygame.K_m]:
+        merge_nodes()
+    if pygame.key.get_pressed()[pygame.K_f]:
         if tasks:
             demonstrations.append(tasks)
         for tasks in demonstrations:
             reset()
             for task_node in tasks:
                 # print(task_node.pos,task_node.action)
+                agent.goto(task_node.pos,clear)
+                action = task_node.action
+                if action == 'pick_up':
+                    pick_up_chemical(agent,all_chemicals,tasks,False)
+                elif action == 'drop_down':
+                    drop_off_chemical(agent,tasks,False)
+                elif action == 'react':
+                    react(agent,all_chemicals,False)
+                elif action == 'separate':
+                    separate(agent,all_chemicals,False)
+    if pygame.key.get_pressed()[pygame.K_z]:
+        reset()
+        # print(parent_nodes)
+        for parent_node in parent_nodes:
+            # print(parent_node.children)
+            for task_node in parent_node.children:
                 agent.goto(task_node.pos,clear)
                 action = task_node.action
                 if action == 'pick_up':

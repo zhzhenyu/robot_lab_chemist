@@ -55,6 +55,7 @@ def react(agent,all_chemicals,learning):
             chemical.being_hold = False
             all_chemicals.remove(chemical)
             components.append(chemical.color)
+        r,g,b = min(255,r),min(255,g),min(255,b)
         color = (r,g,b)
         mix_chemical = Chemical(agent.x,agent.y, screen,chemical_width,chemical_height,color,components)
         agent.chemicals = []
@@ -159,8 +160,6 @@ while not done:
         add_demonstration()
     if pygame.key.get_pressed()[pygame.K_m]:
         merge_nodes()
-        prompt = Prompt()
-        print(prompt.name.get())
     if pygame.key.get_pressed()[pygame.K_f]:
         if tasks:
             demonstrations.append(tasks)

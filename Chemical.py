@@ -12,7 +12,7 @@ class Chemical(object):
 		self.being_hold = False
 		self.components = components
 		self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-		pygame.draw.rect(screen, self.color, self.rect)
+		pygame.draw.rect(self.screen, self.color, self.rect)
 
 	def update_pos(self,x,y):
 		self.x=x

@@ -122,6 +122,7 @@ demonstrations = []
 tasks = []
 stage_nodes = []
 parent_nodes = []
+parent_index = 0
 
 station1 = Station(0,80,screen,station_width,station_height,['pick up chemicals','prepare for reaction'])
 station2 = Station(screen_width-station_width,80,screen,station_width,station_height,['raction bench'])
@@ -188,6 +189,24 @@ while not done:
                     react(agent,all_chemicals,False)
                 elif action == 'separate':
                     separate(agent,all_chemicals,False)
+    if pygame.key.get_pressed()[pygame.K_n]:
+        if parent_nodes:
+            parent_index%=len(parent_nodes)
+            if parent_index==0:
+                reset()
+            parent_node = parent_nodes[parent_index]
+            for task_node in parent_node.children:
+                agent.goto(task_node.pos,clear)
+                action = task_node.action
+                if action == 'pick_up':
+                    pick_up_chemical(agent,all_chemicals,tasks,False)
+                elif action == 'drop_down':
+                    drop_off_chemical(agent,tasks,False)
+                elif action == 'react':
+                    react(agent,all_chemicals,False)
+                elif action == 'separate':
+                    separate(agent,all_chemicals,False)
+            parent_index+=1
 
     for station in all_stations:
         station.get_actions()

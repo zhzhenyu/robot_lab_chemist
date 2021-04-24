@@ -1,5 +1,7 @@
 import pygame
 from collections import defaultdict
+
+
 class Agent(object):
     def __init__(self,screen,step):
         self.x = 250
@@ -82,3 +84,4 @@ class Agent(object):
     def display(self):
         if self.rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             print('get agent states: ', self.prev_level)
+

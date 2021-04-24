@@ -4,6 +4,7 @@ from Agent import Agent
 from Chemical import Chemical
 from Task_node import Task_node
 from Parent_node import Parent_node
+from Prompt import Prompt
 import numpy as np
 from functools import partial
 
@@ -158,6 +159,8 @@ while not done:
         add_demonstration()
     if pygame.key.get_pressed()[pygame.K_m]:
         merge_nodes()
+        prompt = Prompt()
+        print(prompt.name.get())
     if pygame.key.get_pressed()[pygame.K_f]:
         if tasks:
             demonstrations.append(tasks)
